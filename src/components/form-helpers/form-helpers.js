@@ -18,7 +18,6 @@ import intlTelInput from 'intl-tel-input';
 import 'intl-tel-input/build/js/utils';
 import './form-helpers.css';
 import 'intl-tel-input/build/css/intlTelInput.min.css';
-import { useCaptcha } from './captcha-utils';
 import { FormattedMessageMarkdown } from '../../i18n/FormattedMessageMarkdown';
 import { InjectAppServices } from '../../services/pure-di';
 
@@ -80,19 +79,19 @@ export const CaptchaLegalMessage = () => (
  * @param { Object[] } props.children
  * @param { import('../../services/pure-di').AppServices } props.dependencies
  */
-export const FormWithCaptcha = ({
+const _FormWithCaptcha = ({
   className,
   onSubmit,
   validate,
   initialValues,
   initialFormMessage,
   children,
+  dependencies: { captchaUtilsService },
   ...rest
 }) => {
   /** Store original onSubmit because I need to replace it with verifyCaptchaAndSubmit */
   const originalOnSubmit = onSubmit;
-
-  const [Captcha, verifyCaptcha] = useCaptcha();
+  const [Captcha, verifyCaptcha] = captchaUtilsService.useCaptcha();
 
   /** Try to verify captcha, if success run original onSubmit function */
   const verifyCaptchaAndSubmit = async (values, formikProps) => {
@@ -134,6 +133,8 @@ export const FormWithCaptcha = ({
     </Formik>
   );
 };
+
+export const FormWithCaptcha = InjectAppServices(_FormWithCaptcha);
 
 export const FieldGroup = ({ className, children }) => (
   <ul className={concatClasses('field-group', className)}>{children}</ul>
